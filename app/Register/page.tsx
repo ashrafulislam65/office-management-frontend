@@ -1,24 +1,33 @@
 export default function NavBar() {
   return (
     <>
-      <div class="hero bg-base-200 min-h-screen">
-        <div class="hero-content flex-col lg:flex-row-reverse">
-          <div class="text-center lg:text-left">
-            <h1 class="text-5xl font-bold">Sign Up!</h1>
-            <p class="py-6">
+      <div className="hero bg-base-200 min-h-screen">
+        <div className="hero-content flex-col lg:flex-row-reverse">
+          <div className="text-center lg:text-left">
+            <h1 className="text-5xl font-bold">Sign Up</h1>
+            <p className="py-6">
               Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda excepturi exercitationem
               quasi. In deleniti eaque aut repudiandae et a id nisi.
             </p>
           </div>
-          <div class="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
-            <div class="card-body">
-              <fieldset class="fieldset">
-                <label class="label">Email</label>
-                <input type="email" class="input" placeholder="Email" />
-                <label class="label">Password</label>
-                <input type="password" class="input" placeholder="Password" />
-                <div><a class="link link-hover">Forgot password?</a></div>
-                <button class="btn btn-neutral mt-4">Login</button>
+          <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
+            <div className="card-body">
+              <fieldset className="fieldset">
+                <label className="label">Full Name</label>
+                <input type="text" className="input" placeholder="Your Full Name" />
+                <label className="label">Age</label>
+                <input type="number" className="input" placeholder="Your Age (ex-30)" />
+                <label className="label">Email</label>
+                <input type="email" className="input" placeholder="john.doe@aiub.edu" />
+
+                <label className="label">Gender</label>
+                <input type="text" className="input" placeholder="Your gender" />
+                <label className="label">Phone Number</label>
+                <input type="text" className="input" placeholder="01234567891" />
+                <label className="label">Password</label>
+                <input type="password" className="input" placeholder="Password" />
+                <div><a className="link link-hover">Forgot password?</a></div>
+                <button className="btn btn-neutral mt-4">Login</button>
               </fieldset>
             </div>
           </div>
