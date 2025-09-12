@@ -494,8 +494,7 @@
 
 
 
-
-"use client";
+ "use client";
 
 import { useState, useEffect } from "react";
 import api from "@/lib/api";
@@ -548,7 +547,6 @@ export default function TasksPage() {
   const fetchAdminId = async () => {
     try {
       const response = await api.get("/session");
-      // Assuming your session endpoint returns an object with id property
       setAdminId(response.data.id || response.data.adminId);
     } catch (error) {
       console.error("Failed to fetch admin ID:", error);
@@ -558,8 +556,8 @@ export default function TasksPage() {
 
   const fetchTasks = async () => {
     try {
-      // Using the correct endpoint from your backend
-      const response = await api.get(`/employee-tasks`);
+      // Fixed: Added adminId to the URL
+      const response = await api.get(`/${adminId}/employee-tasks`);
       setTasks(response.data);
     } catch (error) {
       console.error("Failed to fetch tasks:", error);
@@ -582,10 +580,8 @@ export default function TasksPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post("/employee-tasks", {
-        ...formData,
-        adminId: adminId // Include adminId in the request body
-      });
+      // Fixed: Added adminId to the URL and removed from body
+      await api.post(`/${adminId}/employee-tasks`, formData);
       
       setShowForm(false);
       setFormData({
