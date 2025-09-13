@@ -29,6 +29,8 @@
 // }
 
 
+ 
+ // app/admin/dashboard/page.tsx
 "use client";
 
 import Link from "next/link";
@@ -56,6 +58,12 @@ export default function AdminDashboard() {
             <div className="bg-white p-6 rounded-lg shadow cursor-pointer hover:shadow-md transition">
               <h2 className="text-lg font-semibold mb-2">Tasks</h2>
               <p className="text-gray-600">Manage employee tasks</p>
+            </div>
+          </Link>
+          <Link href="/admin/email">
+            <div className="bg-white p-6 rounded-lg shadow cursor-pointer hover:shadow-md transition">
+              <h2 className="text-lg font-semibold mb-2">Email</h2>
+              <p className="text-gray-600">Send emails to users</p>
             </div>
           </Link>
         </div>
