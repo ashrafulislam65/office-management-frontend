@@ -62,8 +62,8 @@ export default function AdminDashboard() {
           </Link>
           <Link href="/admin/email">
             <div className="bg-white p-6 rounded-lg shadow cursor-pointer hover:shadow-md transition">
-              <h2 className="text-lg font-semibold mb-2">Email</h2>
-              <p className="text-gray-600">Send emails to users</p>
+              <h2 className="text-lg font-semibold mb-2">Memorandium</h2>
+              <p className="text-gray-600">Send message to users</p>
             </div>
           </Link>
         </div>
