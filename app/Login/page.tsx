@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 
-// Define the type for form data
+
 interface LoginFormData {
   email: string;
   password: string;
@@ -30,14 +30,14 @@ export default function Login() {
     try {
       console.log('Sending login data:', data);
       
-      // Session-based login endpoint
+      
       const response = await fetch('http://localhost:3000/employees/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
-        credentials: 'include' // Important for sessions/cookies
+        credentials: 'include' 
       });
 
       const responseData = await response.json();
@@ -52,11 +52,11 @@ export default function Login() {
 
       console.log('Login successful:', responseData);
       setLoginStatus({ 
-        message: 'Login successful! Redirecting to dashboard...', 
+        message: 'Login successful! Redirecting to Home Page...', 
         isError: false 
       });
       
-      // Check session and redirect
+      
       const sessionCheck = await fetch('http://localhost:3000/employees/session/check', {
         credentials: 'include'
       });
@@ -64,12 +64,12 @@ export default function Login() {
       const sessionData = await sessionCheck.json();
       
       if (sessionData.isLoggedIn) {
-        // Store user data in localStorage or context
+        
         localStorage.setItem('user', JSON.stringify(sessionData.employee));
         
-        // Redirect to dashboard
+        
         setTimeout(() => {
-          router.push('/Dashboard');
+          router.push('/');
         }, 1500);
       } else {
         throw new Error('Session not established properly');
@@ -86,7 +86,7 @@ export default function Login() {
     }
   };
 
-  // Test with demo credentials
+  
   const useDemoCredentials = () => {
     reset({
       email: 'demo@aiub.edu',

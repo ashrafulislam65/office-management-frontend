@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
-// Define the type for form data
 interface FormData {
   fullName: string;
   age: number;
@@ -13,7 +12,6 @@ interface FormData {
   phoneNumber: string;
 }
 
-// Toast component
 const Toast = ({ message, type, onClose }: { message: string; type: 'success' | 'error'; onClose: () => void }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -68,10 +66,10 @@ export default function Register() {
     setIsSubmitting(true);
     
     try {
-      // Log the request data for debugging
+      
       console.log('Sending data to server:', data);
       
-      // Replace with your actual API endpoint
+      
       const response = await fetch('http://localhost:3000/employees', {
         method: 'POST',
         headers: {
@@ -80,18 +78,32 @@ export default function Register() {
         body: JSON.stringify(data),
       });
 
-      const responseData = await response.json();
-
+      
       if (!response.ok) {
-        // Get more detailed error information from the response
-        const errorMessage = responseData.error || 
-                            responseData.message ||
-                            responseData.details?.message ||
-                            `HTTP error! status: ${response.status}`;
+        
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        
+       
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorData.message || errorData.details?.message || errorMessage;
+          } catch (e) {
+            console.error('Error parsing JSON response:', e);
+           
+            errorMessage = response.statusText || errorMessage;
+          }
+        } else {
+          
+          errorMessage = response.statusText || errorMessage;
+        }
         
         throw new Error(errorMessage);
       }
 
+      // If response is OK, parse JSON
+      const responseData = await response.json();
       console.log('Registration successful:', responseData);
       showToast(responseData.message || 'Registration successful! Employee created.', 'success');
       reset();
