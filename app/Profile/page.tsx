@@ -11,9 +11,6 @@ interface User {
   phoneNumber?: string;
   department?: string;
   photoUrl?: string;
-  status?: string;
-  age?: number;
-  gender?: string;
 }
 
 interface UpdateProfileForm {
@@ -31,7 +28,7 @@ interface ChangePasswordForm {
 interface Toast {
   id: number;
   message: string;
-  type: 'success' | 'error' | 'info';
+  type: 'success' | 'error';
 }
 
 export default function Profile() {
@@ -48,7 +45,7 @@ export default function Profile() {
   const { register: registerPassword, handleSubmit: handlePasswordSubmit, formState: { errors: passwordErrors }, watch, reset: resetPassword } = useForm<ChangePasswordForm>();
 
   // Toast message function
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+  const showToast = (message: string, type: 'success' | 'error' = 'error') => {
     const id = Date.now();
     setToasts(prev => [...prev, { id, message, type }]);
     
@@ -67,33 +64,13 @@ export default function Profile() {
 
     const userObj = JSON.parse(userData);
     setUser(userObj);
-    
-    // Fetch full user details
-    fetchUserDetails(userObj.id);
-  }, [router]);
-
-  const fetchUserDetails = async (userId: number) => {
-    try {
-      const response = await fetch(`http://localhost:3000/employees/${userId}`, {
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        const userDetails = await response.json();
-        setUser(userDetails);
-        resetProfile({
-          fullName: userDetails.fullName,
-          phoneNumber: userDetails.phoneNumber || '',
-          department: userDetails.department || ''
-        });
-      }
-    } catch (error) {
-      console.error('Failed to fetch user details:', error);
-      showToast('Failed to load profile details', 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    resetProfile({
+      fullName: userObj.fullName,
+      phoneNumber: userObj.phoneNumber || '',
+      department: userObj.department || ''
+    });
+    setIsLoading(false);
+  }, [router, resetProfile]);
 
   const onProfileUpdate = async (data: UpdateProfileForm) => {
     if (!user) return;
@@ -152,7 +129,6 @@ export default function Profile() {
         
         // Redirect to login after 2 seconds
         setTimeout(() => {
-          // Logout and redirect to login
           localStorage.removeItem('user');
           router.push('/Login');
         }, 2000);
@@ -167,8 +143,8 @@ export default function Profile() {
     }
   };
 
-  const updatePhotoByUrl = async (photoUrl: string) => {
-    if (!user) return;
+  const updatePhotoByUrl = async () => {
+    if (!user || !photoUrlInput) return;
     
     setIsSubmitting(true);
     
@@ -178,7 +154,7 @@ export default function Profile() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ photoUrl }),
+        body: JSON.stringify({ photoUrl: photoUrlInput }),
         credentials: 'include'
       });
 
@@ -186,7 +162,7 @@ export default function Profile() {
         showToast('Photo updated successfully!', 'success');
         
         // Update local user data
-        const updatedUser = { ...user, photoUrl };
+        const updatedUser = { ...user, photoUrl: photoUrlInput };
         setUser(updatedUser);
         localStorage.setItem('user', JSON.stringify(updatedUser));
         setShowUrlInput(false);
@@ -207,23 +183,22 @@ export default function Profile() {
     const file = e.target.files[0];
     
     try {
-      // Create a simple URL for the uploaded file
-      const photoUrl = URL.createObjectURL(file);
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('photo', file);
       
-      const response = await fetch(`http://localhost:3000/employees/${user.id}/photo`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ photoUrl }),
+      const response = await fetch(`http://localhost:3000/employees/${user.id}/upload-photo`, {
+        method: 'POST',
+        body: formData,
         credentials: 'include'
       });
 
       if (response.ok) {
+        const data = await response.json();
         showToast('Photo updated successfully!', 'success');
         
         // Update local user data
-        const updatedUser = { ...user, photoUrl };
+        const updatedUser = { ...user, photoUrl: data.photoUrl };
         setUser(updatedUser);
         localStorage.setItem('user', JSON.stringify(updatedUser));
       } else {
@@ -250,8 +225,7 @@ export default function Profile() {
           <div
             key={toast.id}
             className={`alert ${
-              toast.type === 'success' ? 'alert-success' :
-              toast.type === 'error' ? 'alert-error' : 'alert-info'
+              toast.type === 'success' ? 'alert-success' : 'alert-error'
             } shadow-lg mb-2`}
           >
             <div>
@@ -291,7 +265,6 @@ export default function Profile() {
                 <h2 className="card-title">{user.fullName}</h2>
                 <p>{user.email}</p>
                 {user.department && <p className="badge badge-primary mt-2">{user.department}</p>}
-                {user.status && <p className="badge badge-secondary mt-1">{user.status}</p>}
                 
                 <div className="mt-4 space-y-2 w-full">
                   {!showUrlInput ? (
@@ -325,10 +298,10 @@ export default function Profile() {
                       <div className="flex gap-2">
                         <button 
                           className="btn btn-success btn-sm flex-1"
-                          onClick={() => updatePhotoByUrl(photoUrlInput)}
-                          disabled={!photoUrlInput}
+                          onClick={updatePhotoByUrl}
+                          disabled={!photoUrlInput || isSubmitting}
                         >
-                          Update Photo
+                          {isSubmitting ? 'Updating...' : 'Update Photo'}
                         </button>
                         <button 
                           className="btn btn-error btn-sm flex-1"
@@ -336,6 +309,7 @@ export default function Profile() {
                             setShowUrlInput(false);
                             setPhotoUrlInput('');
                           }}
+                          disabled={isSubmitting}
                         >
                           Cancel
                         </button>
@@ -400,34 +374,6 @@ export default function Profile() {
                         {...registerProfile('department')}
                       />
                     </div>
-
-                    {user.age && (
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text">Age</span>
-                        </label>
-                        <input
-                          type="number"
-                          className="input input-bordered"
-                          value={user.age}
-                          disabled
-                        />
-                      </div>
-                    )}
-
-                    {user.gender && (
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text">Gender</span>
-                        </label>
-                        <input
-                          type="text"
-                          className="input input-bordered"
-                          value={user.gender}
-                          disabled
-                        />
-                      </div>
-                    )}
                   </div>
 
                   <div className="form-control mt-6">
@@ -477,10 +423,6 @@ export default function Profile() {
                     minLength: {
                       value: 8,
                       message: 'Password must be at least 8 characters'
-                    },
-                    pattern: {
-                      value: /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])/,
-                      message: 'Password must contain uppercase, lowercase, number and special character'
                     }
                   })}
                 />
