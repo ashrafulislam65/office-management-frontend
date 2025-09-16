@@ -1,4 +1,4 @@
- // context/SessionContext.tsx
+//  context/SessionContext.tsx
 "use client"
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -41,7 +41,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({ children }) =>
 
   const checkSession = async () => {
     try {
-      // First check if we have user data in localStorage
+      
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
         const parsedUser = JSON.parse(storedUser);
@@ -50,13 +50,13 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({ children }) =>
         return;
       }
 
-      // If no stored user, try to get session from backend
+    
       const response = await axios.get('http://localhost:9001/admin/users/session', {
         withCredentials: true,
       });
       
       if (response.data) {
-        // Normalize the user data structure
+    
         const userData = response.data;
         const normalizedUser = {
           id: userData.id || userData.adminId || '',
@@ -71,7 +71,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({ children }) =>
     } catch (error: any) {
       console.error('Session check failed:', error);
       
-      // Handle specific error cases
+      
       if (error.code === 'NETWORK_ERROR' || error.code === 'ECONNREFUSED') {
         console.error('Backend server is not reachable. Make sure it\'s running on port 9001.');
       } else if (error.response?.status === 401) {
@@ -96,10 +96,10 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({ children }) =>
       });
 
       if (response.data) {
-        // The backend returns { role: string, user: any }
+        
         const { role, user: userData } = response.data;
         
-        // Normalize the user object
+      
         const normalizedUser = {
           id: userData.id || userData.adminId || '',
           email: userData.email || userData.Email || '',
@@ -163,4 +163,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({ children }) =>
       {children}
     </SessionContext.Provider>
   );
-};
+};   
+
+
+
